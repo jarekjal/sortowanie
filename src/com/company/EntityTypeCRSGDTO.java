@@ -29,4 +29,12 @@ public class EntityTypeCRSGDTO implements Comparable<EntityTypeCRSGDTO> {
             return Long.compare(getId(), other.getId());
         }
     }
+
+    @Override
+    public String toString() {
+        return "EntityTypeCRSGDTO{" +
+                "id=" + id +
+                ", desc='" + desc + '\'' +
+                '}';
+    }
 }

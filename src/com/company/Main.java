@@ -86,7 +86,7 @@ public class Main {
 //        Comparator<ContactCRSGDTO> compareByEntityTypeVOAsc = (a, b) -> a.getEntityTypeVO().compareTo(b.getEntityTypeVO());
 
         Comparator<ContactCRSGDTO> comparator = ContactCRSGDTOComparatorFactory
-                .getComparator(ContactCRSGDTOComparatorFactory.BIRTH_DATE_FIELD, true);
+                .getComparator(ContactCRSGDTOComparatorFactory.ENTITY_TYPE_VO_FIELD, true);
         contacts.sort(Comparator.nullsLast(comparator));
 
 

@@ -16,6 +16,7 @@ public class ContactCRSGDTOComparatorFactory {
     public static final String F_NAME_FIELD = "fName";
     public static final String NAME_FIELD = "name";
     public static final String BIRTH_DATE_FIELD = "birthDate";
+    public static final String ENTITY_TYPE_VO_FIELD = "entityTypeVO";
 
     public static Comparator<ContactCRSGDTO> getComparator(String compareByField, boolean ascending) {
         Comparator<ContactCRSGDTO> comparator;
@@ -36,6 +37,9 @@ public class ContactCRSGDTOComparatorFactory {
                 break;
             case BIRTH_DATE_FIELD:
                 comparator = new DateFieldComparator(compareByField);
+                break;
+            case ENTITY_TYPE_VO_FIELD:
+                comparator = new EntityTypeVOComparator();
                 break;
             default:
                 return null;
@@ -166,6 +170,23 @@ public class ContactCRSGDTOComparatorFactory {
                 return -1;
             }
             return field1.compareTo(field2);
+        }
+    }
+
+    public static class EntityTypeVOComparator implements Comparator<ContactCRSGDTO> {
+
+        @Override
+        public int compare(ContactCRSGDTO c1, ContactCRSGDTO c2) {
+            EntityTypeCRSGDTO entityTypeVO1 = c1.getEntityTypeVO();
+            EntityTypeCRSGDTO entityTypeVO2 = c2.getEntityTypeVO();
+            // null last
+            if(null == entityTypeVO1) {
+                return null == entityTypeVO2 ? 0 : 1;
+            }
+            else if(null == entityTypeVO2) {
+                return -1;
+            }
+            return entityTypeVO1.compareTo(entityTypeVO2);
         }
     }
 
