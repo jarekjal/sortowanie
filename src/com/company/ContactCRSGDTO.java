@@ -139,6 +139,6 @@ public class ContactCRSGDTO {
                 ", mailValidated=" + mailValidated +
                 ", id=" + id +
                 ", externalId=" + externalId +
-                "}\n";
+                "}\n\n";
     }
 }

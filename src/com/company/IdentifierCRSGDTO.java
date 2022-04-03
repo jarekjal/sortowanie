@@ -20,4 +20,12 @@ public class IdentifierCRSGDTO {
     public void setIdValue(String idValue) {
         this.idValue = idValue;
     }
+
+    @Override
+    public String toString() {
+        return "IdentifierCRSGDTO{" +
+                "idType=" + idType +
+                ", idValue='" + idValue + '\'' +
+                '}';
+    }
 }

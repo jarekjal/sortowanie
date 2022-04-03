@@ -1,7 +1,7 @@
 package com.company;
 
-import java.util.Comparator;
-import java.util.Date;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class ContactCRSGDTOComparatorFactory {
 
@@ -18,6 +18,8 @@ public class ContactCRSGDTOComparatorFactory {
     public static final String BIRTH_DATE_FIELD = "birthDate";
     public static final String ENTITY_TYPE_VO_ID_FIELD = "entityTypeVO.id";
     public static final String ENTITY_TYPE_VO_DESC_FIELD = "entityTypeVO.desc";
+    public static final String IDENTIFIERS_ID_TYPE_FIELD = "identifiers.idType";
+    public static final String IDENTIFIERS_ID_VALUE_FIELD = "identifiers.idValue";
 
     public static Comparator<ContactCRSGDTO> getComparator(String compareByField, boolean ascending) {
         Comparator<ContactCRSGDTO> comparator;
@@ -42,6 +44,10 @@ public class ContactCRSGDTOComparatorFactory {
             case ENTITY_TYPE_VO_ID_FIELD:
             case ENTITY_TYPE_VO_DESC_FIELD:
                 comparator = new EntityTypeVOComparator(compareByField);
+                break;
+            case IDENTIFIERS_ID_TYPE_FIELD:
+            case IDENTIFIERS_ID_VALUE_FIELD:
+                comparator = new IdentifiersComparator(compareByField, ascending);
                 break;
             default:
                 return null;
@@ -152,34 +158,84 @@ public class ContactCRSGDTOComparatorFactory {
         public int compare(ContactCRSGDTO c1, ContactCRSGDTO c2) {
             EntityTypeCRSGDTO entityTypeVO1 = c1.getEntityTypeVO();
             EntityTypeCRSGDTO entityTypeVO2 = c2.getEntityTypeVO();
-            // null last
-            if (null == entityTypeVO1) {
-                return null == entityTypeVO2 ? 0 : 1;
-            } else if (null == entityTypeVO2) {
-                return -1;
-            }
-            switch (field) {
-                case ENTITY_TYPE_VO_ID_FIELD:
-                    Long id1 = entityTypeVO1.getId();
-                    Long id2 = entityTypeVO2.getId();
-                    return compareNullable(id1, id2);
-                case ENTITY_TYPE_VO_DESC_FIELD:
-                    String desc1 = entityTypeVO1.getDesc();
-                    String desc2 = entityTypeVO2.getDesc();
-                    return compareNullable(desc1, desc2);
-                default:
-                    throw new IllegalArgumentException();
-            }
+            return compareWithNulls(entityTypeVO1, entityTypeVO2).orElseGet(() -> {
+                switch (field) {
+                    case ENTITY_TYPE_VO_ID_FIELD:
+                        Long id1 = entityTypeVO1.getId();
+                        Long id2 = entityTypeVO2.getId();
+                        return compareNullable(id1, id2);
+                    case ENTITY_TYPE_VO_DESC_FIELD:
+                        String desc1 = entityTypeVO1.getDesc();
+                        String desc2 = entityTypeVO2.getDesc();
+                        return compareNullable(desc1, desc2);
+                    default:
+                        throw new IllegalArgumentException();
+                }
+            });
+        }
+    }
+
+    public static class IdentifiersComparator implements Comparator<ContactCRSGDTO> {
+
+        private final String field;
+        private final boolean ascending;
+
+        public IdentifiersComparator(String field, boolean ascending) {
+            this.field = field;
+            this.ascending = ascending;
+        }
+
+        @Override
+        public int compare(ContactCRSGDTO c1, ContactCRSGDTO c2) {
+            List<IdentifierCRSGDTO> identifiers1 = c1.getIdentifiers();
+            List<IdentifierCRSGDTO> identifiers2 = c2.getIdentifiers();
+            return compareWithNullsOrEmptyCollection(identifiers1, identifiers2).orElseGet(() -> {
+                switch (field) {
+                    case IDENTIFIERS_ID_TYPE_FIELD:
+                        Optional<Long> idType1 = findMinOrMaxIdType(identifiers1, ascending);
+                        Optional<Long> idType2 = findMinOrMaxIdType(identifiers2, ascending);
+                        return compareNullable(idType1.orElse(null), idType2.orElse(null));
+                    /*case IDENTIFIERS_ID_VALUE_FIELD:
+                        String desc1 = entityTypeVO1.getDesc();
+                        String desc2 = entityTypeVO2.getDesc();
+                        return compareNullable(desc1, desc2);*/
+                    default:
+                        throw new IllegalArgumentException();
+                }
+            });
+        }
+
+        private Optional<Long> findMinOrMaxIdType(List<IdentifierCRSGDTO> identifiers, boolean ascending) {
+            Stream<Long> idTypes = identifiers.stream().filter(Objects::nonNull)
+                    .map(IdentifierCRSGDTO::getIdType)
+                    .filter(Objects::nonNull);
+            return ascending ? idTypes.min(Long::compareTo) : idTypes.max(Long::compareTo);
         }
     }
 
     private static <T extends Comparable<T>> int compareNullable(T field1, T field2) {
+        return compareWithNulls(field1, field2).orElse(field1.compareTo(field2));
+    }
+
+    private static <T> Optional<Integer> compareWithNulls(T field1, T field2) {
         // null last
+        Optional<Integer> result = Optional.empty();
         if (null == field1) {
-            return null == field2 ? 0 : 1;
+            result = null == field2 ? Optional.of(0) : Optional.of(1);
         } else if (null == field2) {
-            return -1;
+            result = Optional.of(-1);
         }
-        return field1.compareTo(field2);
+        return result;
+    }
+
+    private static <U, T extends Collection<U>> Optional<Integer> compareWithNullsOrEmptyCollection(T col1, T col2) {
+        // null or empty collection last
+        Optional<Integer> result = Optional.empty();
+        if (null == col1 || col1.isEmpty()) {
+            result = (null == col2 || col2.isEmpty()) ? Optional.of(0) : Optional.of(1);
+        } else if (null == col2 || col2.isEmpty()) {
+            result = Optional.of(-1);
+        }
+        return result;
     }
 }

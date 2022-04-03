@@ -36,7 +36,7 @@ public class Main {
         entityType2.setId(34521L);
         entityType2.setDesc("jakis opis entity type 2");
         IdentifierCRSGDTO identifier3 = new IdentifierCRSGDTO();
-        identifier3.setIdType(87654L);
+        identifier3.setIdType(1666L);
         identifier3.setIdValue("5407224565500");
         ContactCRSGDTO c2 = new ContactCRSGDTO();
         c2.setEntityTypeVO(entityType2);
@@ -63,9 +63,18 @@ public class Main {
         IdentifierCRSGDTO identifier5 = new IdentifierCRSGDTO();
         identifier5.setIdType(98712L);
         identifier5.setIdValue("AB12345");
+        IdentifierCRSGDTO identifier6 = new IdentifierCRSGDTO();
+        identifier6.setIdType(null);
+        identifier6.setIdValue("AB12345");
         ContactCRSGDTO c3 = new ContactCRSGDTO();
         c3.setEntityTypeVO(entityType3);
-        c3.setIdentifiers(List.of(identifier4, identifier5));
+        List<IdentifierCRSGDTO> identifiers = new ArrayList<>();
+        identifiers.add(identifier4);
+        identifiers.add(null);
+        identifiers.add(identifier5);
+        identifiers.add(identifier6);
+        identifiers.add(null);
+        c3.setIdentifiers(identifiers);
         c3.setId(null/*33333L*/);
         c3.setAddress("3. Powstania Slaskiego, 3, 41-303, Dabrowa Gornicza, Polska");
         c3.setCity("Dabrowa Gornicza");
@@ -78,17 +87,28 @@ public class Main {
         c3.setPhoneNumberValidated(0L);
         c3.setMailValidated(1L);
 
+        // contact 4 (only nulls)
+        ContactCRSGDTO c4 = new ContactCRSGDTO();
+
         List<ContactCRSGDTO> contacts = new ArrayList<>();
         contacts.add(c1);
         contacts.add(c2);
         contacts.add(c3);
+        contacts.add(c4);
         contacts.add(null);
-        System.out.println(contacts);
+        //System.out.println(contacts);
 
         // Sorting (conventions: nulls last, )
         Comparator<ContactCRSGDTO> comparator = ContactCRSGDTOComparatorFactory
-                .getComparator(ContactCRSGDTOComparatorFactory.NAME_FIELD, true);
+                .getComparator(ContactCRSGDTOComparatorFactory.IDENTIFIERS_ID_TYPE_FIELD, true);
         contacts.sort(Comparator.nullsLast(comparator));
+
+        Optional<Long> lowest = c3.getIdentifiers().stream()
+                .filter(Objects::nonNull)
+                .map(IdentifierCRSGDTO::getIdType)
+                .filter(Objects::nonNull)
+                .sorted()
+                .findFirst();
 
         //Paging
 
