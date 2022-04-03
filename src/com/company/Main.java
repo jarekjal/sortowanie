@@ -98,17 +98,11 @@ public class Main {
         contacts.add(null);
         //System.out.println(contacts);
 
-        // Sorting (conventions: nulls last, )
+        // Sorting (conventions: nulls last, identifier comparing based on lowest id/value
+        // in compared lists for ascending and highest id/value for descending)
         Comparator<ContactCRSGDTO> comparator = ContactCRSGDTOComparatorFactory
-                .getComparator(ContactCRSGDTOComparatorFactory.IDENTIFIERS_ID_TYPE_FIELD, true);
+                .getComparator(ContactCRSGDTOComparatorFactory.IDENTIFIERS_ID_VALUE_FIELD, true);
         contacts.sort(Comparator.nullsLast(comparator));
-
-        Optional<Long> lowest = c3.getIdentifiers().stream()
-                .filter(Objects::nonNull)
-                .map(IdentifierCRSGDTO::getIdType)
-                .filter(Objects::nonNull)
-                .sorted()
-                .findFirst();
 
         //Paging
 

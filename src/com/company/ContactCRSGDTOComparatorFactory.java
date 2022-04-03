@@ -195,10 +195,10 @@ public class ContactCRSGDTOComparatorFactory {
                         Optional<Long> idType1 = findMinOrMaxIdType(identifiers1, ascending);
                         Optional<Long> idType2 = findMinOrMaxIdType(identifiers2, ascending);
                         return compareNullable(idType1.orElse(null), idType2.orElse(null));
-                    /*case IDENTIFIERS_ID_VALUE_FIELD:
-                        String desc1 = entityTypeVO1.getDesc();
-                        String desc2 = entityTypeVO2.getDesc();
-                        return compareNullable(desc1, desc2);*/
+                    case IDENTIFIERS_ID_VALUE_FIELD:
+                        Optional<String> idValue1 = findMinOrMaxIdValue(identifiers1, ascending);
+                        Optional<String> idValue2 = findMinOrMaxIdValue(identifiers2, ascending);
+                        return compareNullable(idValue1.orElse(null), idValue2.orElse(null));
                     default:
                         throw new IllegalArgumentException();
                 }
@@ -206,10 +206,19 @@ public class ContactCRSGDTOComparatorFactory {
         }
 
         private Optional<Long> findMinOrMaxIdType(List<IdentifierCRSGDTO> identifiers, boolean ascending) {
-            Stream<Long> idTypes = identifiers.stream().filter(Objects::nonNull)
+            Stream<Long> idTypes = identifiers.stream()
+                    .filter(Objects::nonNull)
                     .map(IdentifierCRSGDTO::getIdType)
                     .filter(Objects::nonNull);
             return ascending ? idTypes.min(Long::compareTo) : idTypes.max(Long::compareTo);
+        }
+
+        private Optional<String> findMinOrMaxIdValue(List<IdentifierCRSGDTO> identifiers, boolean ascending) {
+            Stream<String> idValues = identifiers.stream()
+                    .filter(Objects::nonNull)
+                    .map(IdentifierCRSGDTO::getIdValue)
+                    .filter(Objects::nonNull);
+            return ascending ? idValues.min(String::compareTo) : idValues.max(String::compareTo);
         }
     }
 
