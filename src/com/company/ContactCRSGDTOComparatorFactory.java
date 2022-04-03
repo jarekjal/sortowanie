@@ -16,11 +16,12 @@ public class ContactCRSGDTOComparatorFactory {
     public static final String F_NAME_FIELD = "fName";
     public static final String NAME_FIELD = "name";
     public static final String BIRTH_DATE_FIELD = "birthDate";
-    public static final String ENTITY_TYPE_VO_FIELD = "entityTypeVO";
+    public static final String ENTITY_TYPE_VO_ID_FIELD = "entityTypeVO.id";
+    public static final String ENTITY_TYPE_VO_DESC_FIELD = "entityTypeVO.desc";
 
     public static Comparator<ContactCRSGDTO> getComparator(String compareByField, boolean ascending) {
         Comparator<ContactCRSGDTO> comparator;
-        switch (compareByField){
+        switch (compareByField) {
             case ID_FIELD:
             case EXTERNAL_ID_FIELD:
             case PHONE_NUMBER_VALIDATED_FIELD:
@@ -36,10 +37,11 @@ public class ContactCRSGDTOComparatorFactory {
                 comparator = new StringFieldComparator(compareByField);
                 break;
             case BIRTH_DATE_FIELD:
-                comparator = new DateFieldComparator(compareByField);
+                comparator = new DateFieldComparator();
                 break;
-            case ENTITY_TYPE_VO_FIELD:
-                comparator = new EntityTypeVOComparator();
+            case ENTITY_TYPE_VO_ID_FIELD:
+            case ENTITY_TYPE_VO_DESC_FIELD:
+                comparator = new EntityTypeVOComparator(compareByField);
                 break;
             default:
                 return null;
@@ -50,19 +52,18 @@ public class ContactCRSGDTOComparatorFactory {
         return comparator;
     }
 
-
     public static class LongFieldComparator implements Comparator<ContactCRSGDTO> {
 
         private final String field;
 
-        public LongFieldComparator(String field){
+        public LongFieldComparator(String field) {
             this.field = field;
         }
 
         @Override
         public int compare(ContactCRSGDTO c1, ContactCRSGDTO c2) {
             Long field1, field2;
-            switch (field){
+            switch (field) {
                 case ID_FIELD:
                     field1 = c1.getId();
                     field2 = c2.getId();
@@ -82,14 +83,7 @@ public class ContactCRSGDTOComparatorFactory {
                 default:
                     throw new IllegalArgumentException();
             }
-            // null last
-            if(null == field1) {
-                return null == field2 ? 0 : 1;
-            }
-            else if(null == field2) {
-                return -1;
-            }
-            return field1.compareTo(field2);
+            return compareNullable(field1, field2);
         }
     }
 
@@ -97,14 +91,14 @@ public class ContactCRSGDTOComparatorFactory {
 
         private final String field;
 
-        public StringFieldComparator(String field){
+        public StringFieldComparator(String field) {
             this.field = field;
         }
 
         @Override
         public int compare(ContactCRSGDTO c1, ContactCRSGDTO c2) {
             String field1, field2;
-            switch (field){
+            switch (field) {
                 case ADDRESS_FIELD:
                     field1 = c1.getAddress();
                     field2 = c2.getAddress();
@@ -132,62 +126,60 @@ public class ContactCRSGDTOComparatorFactory {
                 default:
                     throw new IllegalArgumentException();
             }
-            // null last
-            if(null == field1) {
-                return null == field2 ? 0 : 1;
-            }
-            else if(null == field2) {
-                return -1;
-            }
-            return field1.compareTo(field2);
+            return compareNullable(field1, field2);
         }
     }
 
     public static class DateFieldComparator implements Comparator<ContactCRSGDTO> {
 
-        private final String field;
-
-        public DateFieldComparator(String field){
-            this.field = field;
-        }
-
         @Override
         public int compare(ContactCRSGDTO c1, ContactCRSGDTO c2) {
-            Date field1, field2;
-            switch (field){
-                case BIRTH_DATE_FIELD:
-                    field1 = c1.getBirthDate();
-                    field2 = c2.getBirthDate();
-                    break;
-                default:
-                    throw new IllegalArgumentException();
-            }
-            // null last
-            if(null == field1) {
-                return null == field2 ? 0 : 1;
-            }
-            else if(null == field2) {
-                return -1;
-            }
-            return field1.compareTo(field2);
+            Date field1 = c1.getBirthDate();
+            Date field2 = c2.getBirthDate();
+            return compareNullable(field1, field2);
         }
     }
 
     public static class EntityTypeVOComparator implements Comparator<ContactCRSGDTO> {
+
+        private final String field;
+
+        public EntityTypeVOComparator(String field) {
+            this.field = field;
+        }
 
         @Override
         public int compare(ContactCRSGDTO c1, ContactCRSGDTO c2) {
             EntityTypeCRSGDTO entityTypeVO1 = c1.getEntityTypeVO();
             EntityTypeCRSGDTO entityTypeVO2 = c2.getEntityTypeVO();
             // null last
-            if(null == entityTypeVO1) {
+            if (null == entityTypeVO1) {
                 return null == entityTypeVO2 ? 0 : 1;
-            }
-            else if(null == entityTypeVO2) {
+            } else if (null == entityTypeVO2) {
                 return -1;
             }
-            return entityTypeVO1.compareTo(entityTypeVO2);
+            switch (field) {
+                case ENTITY_TYPE_VO_ID_FIELD:
+                    Long id1 = entityTypeVO1.getId();
+                    Long id2 = entityTypeVO2.getId();
+                    return compareNullable(id1, id2);
+                case ENTITY_TYPE_VO_DESC_FIELD:
+                    String desc1 = entityTypeVO1.getDesc();
+                    String desc2 = entityTypeVO2.getDesc();
+                    return compareNullable(desc1, desc2);
+                default:
+                    throw new IllegalArgumentException();
+            }
         }
     }
 
+    private static <T extends Comparable<T>> int compareNullable(T field1, T field2) {
+        // null last
+        if (null == field1) {
+            return null == field2 ? 0 : 1;
+        } else if (null == field2) {
+            return -1;
+        }
+        return field1.compareTo(field2);
+    }
 }
