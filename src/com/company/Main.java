@@ -108,20 +108,26 @@ public class Main {
         System.out.println(contacts);
 
         //Paging
-        int startIndex = 2;
-        int count = 2;
-        int page = (int) Math.ceil(startIndex/count);
+        Integer startIndex = 2;
+        Integer count = 2;
+        int MAX_COUNT = 200;
+        int DEFAULT_CHUNK_SIZE = 200;
+
+        startIndex = (startIndex == null || startIndex < 1) ? 1 : startIndex;
+        count = (count == null || count <= 0 || count > MAX_COUNT) ? DEFAULT_CHUNK_SIZE : count;
+        int page = (int) Math.ceil(startIndex / count);
         int fromIndex = count * page;
-        int toIndex = fromIndex + count - 1;
+        int toIndex = fromIndex + count;
         if (fromIndex >= contacts.size()) {
             fromIndex = toIndex = 0;
         } else {
             if (toIndex >= contacts.size()) {
-                toIndex = contacts.size() - 1;
+                toIndex = contacts.size();
             }
         }
+
         System.out.println("po pagingu (page " + page + "):");
-        System.out.println(contacts.subList(fromIndex, toIndex + 1));
+        System.out.println(contacts.subList(fromIndex, toIndex));
 
 
 
