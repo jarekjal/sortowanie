@@ -104,10 +104,27 @@ public class Main {
                 .getComparator(ContactCRSGDTOComparatorFactory.IDENTIFIERS_ID_VALUE_FIELD, true);
         contacts.sort(Comparator.nullsLast(comparator));
 
-        //Paging
-
-
-        System.out.println("po sortowaniu: ");
+        System.out.println("po sortowaniu:");
         System.out.println(contacts);
+
+        //Paging
+        int startIndex = 2;
+        int count = 2;
+        int page = (int) Math.ceil(startIndex/count);
+        int fromIndex = count * page;
+        int toIndex = fromIndex + count - 1;
+        if (fromIndex >= contacts.size()) {
+            fromIndex = toIndex = 0;
+        } else {
+            if (toIndex >= contacts.size()) {
+                toIndex = contacts.size() - 1;
+            }
+        }
+        System.out.println("po pagingu (page " + page + "):");
+        System.out.println(contacts.subList(fromIndex, toIndex + 1));
+
+
+
+
     }
 }
