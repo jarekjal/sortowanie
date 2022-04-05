@@ -223,7 +223,7 @@ public class ContactCRSGDTOComparatorFactory {
     }
 
     private static <T extends Comparable<T>> int compareNullable(T field1, T field2) {
-        return compareWithNulls(field1, field2).orElse(field1.compareTo(field2));
+        return compareWithNulls(field1, field2).orElseGet(() -> field1.compareTo(field2));
     }
 
     private static <T> Optional<Integer> compareWithNulls(T field1, T field2) {

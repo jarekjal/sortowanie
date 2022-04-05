@@ -46,7 +46,7 @@ public class Main {
         c2.setCity("Legnica");
         c2.setBirthDate(new Date(1954 - 1900, Calendar.SEPTEMBER, 17));
         c2.setExternalId(22222L);
-        c2.setfName("Grazyna");
+        c2.setfName("jaroslaw");
         c2.setStreet("Ogrodowa");
         c2.setHouse("5");
         c2.setName("Dobrowolska");
@@ -101,7 +101,7 @@ public class Main {
         // Sorting (conventions: nulls last, identifier comparing based on lowest id/value
         // in compared lists for ascending and highest id/value for descending)
         Comparator<ContactCRSGDTO> comparator = ContactCRSGDTOComparatorFactory
-                .getComparator(ContactCRSGDTOComparatorFactory.IDENTIFIERS_ID_VALUE_FIELD, true);
+                .getComparator(ContactCRSGDTOComparatorFactory.F_NAME_FIELD, true);
         contacts.sort(Comparator.nullsLast(comparator));
 
         System.out.println("po sortowaniu:");
